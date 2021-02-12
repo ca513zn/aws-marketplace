@@ -8,7 +8,7 @@ import Error from "./Error";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Store } from "@material-ui/icons";
 import { Card, CardHeader, Badge, Box } from "@material-ui/core";
-const MarketList = () => {
+const MarketList = ({ searchResults }) => {
   const onNewMarket = (prevQuery, newdata) => {
     let udpatedQuery = { ...prevQuery };
     const updatedMarketList = [
@@ -27,13 +27,22 @@ const MarketList = () => {
       {({ data, loading, errors }) => {
         if (errors.length > 0) return <Error errors={errors} />;
         if (loading || !data.listMarkets) return <Loading fullscreen />;
+        const markets =
+          searchResults.length > 0 ? searchResults : data.listMarkets.items;
         return (
           <>
-            <h2 className="header">
-              <Store />
-              Markets
-            </h2>
-            {data.listMarkets.items.map((market) => (
+            {searchResults.length > 0 ? (
+              <h2 className="text-green">
+                <Icon type="success" name="check" className="icon" />
+                {searchResults.length} Results
+              </h2>
+            ) : (
+              <h2 className="header">
+                <Store />
+                Markets
+              </h2>
+            )}
+            {markets.map((market) => (
               <div key={market.id} className="my-2">
                 <Card>
                   <CardHeader

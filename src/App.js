@@ -41,7 +41,6 @@ const App = () => {
           return;
       }
     };
-    return () => Hub.remove("auth");
   }, []);
 
   const handleSignOut = async () => {
