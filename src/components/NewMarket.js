@@ -5,7 +5,13 @@ import useDialog from "../hooks/useDialog";
 import { API, graphqlOperation } from "aws-amplify";
 import { createMarket } from "../graphql/mutations";
 import { UserContext } from "../App";
-const NewMarket = () => {
+const NewMarket = ({
+  handleSearch,
+  searchTerm,
+  handleChangeSearchTerm,
+  handleClearSearchTerm,
+  isSearching,
+}) => {
   const addMarketDialog = useDialog();
   const [name, setName] = useState("");
   const handleSetname = (val) => {
@@ -23,7 +29,7 @@ const NewMarket = () => {
       );
       console.log(result);
       setName("");
-      setSelectedTags([])
+      setSelectedTags([]);
       addMarketDialog.handleClose();
     } catch (error) {
       console.log(error);
@@ -47,6 +53,27 @@ const NewMarket = () => {
         <>
           <div className="market-header">
             <h1 className="market-title">Create Your MarketPlace</h1>
+            <Form inline onSubmit={handleSearch}>
+              <Form.Item>
+                <Input
+                  value={searchTerm}
+                  placeholder="Search Markets"
+                  icon="circle-cross"
+                  onIconClick={handleClearSearchTerm}
+                  onChange={handleChangeSearchTerm}
+                />
+              </Form.Item>
+              <Form.Item>
+                <Button
+                  type="info"
+                  icon="search"
+                  onClick={handleSearch}
+                  loading={isSearching}
+                >
+                  Search
+                </Button>
+              </Form.Item>
+            </Form>
             <Button
               type="text"
               icon="edit"
