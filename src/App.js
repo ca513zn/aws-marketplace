@@ -68,7 +68,10 @@ const App = () => {
               exact
               path="/markets/:marketId"
               component={({ match }) => (
-                <MarketPage marketId={match.params.marketId} />
+                <MarketPage
+                  user={state.user}
+                  marketId={match.params.marketId}
+                />
               )}
             />
           </div>
