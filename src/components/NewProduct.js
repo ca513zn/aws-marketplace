@@ -3,12 +3,16 @@ import { PhotoPicker } from "aws-amplify-react";
 // prettier-ignore
 import { Form, Button, Input, Notification, Radio, Progress } from "element-react";
 
+const initialState = {
+  description: "",
+  price: 0,
+  shipped: true,
+  imageURL: "",
+  image: "",
+};
+
 const NewProduct = () => {
-  const [state, setState] = useState({
-    description: "",
-    price: 0,
-    shipped: true,
-  });
+  const [state, setState] = useState(initialState);
 
   const handleChange = (key, value) => {
     setState((prevState) => ({
@@ -18,7 +22,8 @@ const NewProduct = () => {
   };
 
   const handleAddProduct = () => {
-    console.log("product added!");
+    console.log(state);
+    setState(initialState);
   };
 
   return (
@@ -62,9 +67,48 @@ const NewProduct = () => {
               </Radio>
             </div>
           </Form.Item>
-          <PhotoPicker />
+          {state.imageURL && (
+            <img
+              className="image-preview"
+              src={state.imageURL}
+              alt="Product Preview"
+            />
+          )}
+          <PhotoPicker
+            title="Product Image"
+            preview="hidden"
+            onLoad={(url) => handleChange("imageURL", url)}
+            onPick={(file) => handleChange("image", file)}
+            theme={{
+              formContainer: {
+                margin: 0,
+                padding: "0.8em",
+              },
+              formSection: {
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+              },
+              sectionBody: {
+                margin: 0,
+                width: "250px",
+              },
+              sectionHeader: {
+                padding: "0.2em",
+                color: "var(--darkAmazonOrange)",
+              },
+              photoPickerButton: {
+                display: "none",
+              },
+            }}
+          />
           <Form.Item>
-            <Button type="primary" onClick={handleAddProduct}>
+            <Button
+              disabled={!state.imageURL || !state.description || !state.price}
+              type="primary"
+              onClick={handleAddProduct}
+            >
               Add Product
             </Button>
           </Form.Item>
