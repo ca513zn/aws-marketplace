@@ -27,7 +27,6 @@ const NewMarket = ({
       const result = await API.graphql(
         graphqlOperation(createMarket, { input })
       );
-      console.log(result);
       setName("");
       setSelectedTags([]);
       addMarketDialog.handleClose();

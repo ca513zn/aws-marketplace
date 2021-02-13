@@ -10,7 +10,6 @@ const HomePage = () => {
     isSearching: false,
   });
   const handleChangeSearchTerm = (value) => {
-    console.log(value);
     setState((prevState) => ({ ...prevState, searchTerm: value }));
   };
   const handleClearSearchTerm = () => {

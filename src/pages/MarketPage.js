@@ -54,7 +54,6 @@ const MarketPage = ({ marketId, user }) => {
       next: (productData) => {
         const createdProduct = productData.value.data.onCreateProduct;
         setState((prevState) => {
-          console.log(prevState)
           const prevProducts = prevState.market.products.items.filter(
             (item) => item.id !== createdProduct.id
           );

@@ -28,15 +28,12 @@ const App = () => {
     authWatcher.onHubCapsule = (capsule) => {
       switch (capsule.payload.event) {
         case "signIn":
-          console.log("signed in");
           getUserData();
           registerNewUser(capsule.payload.data);
           break;
         case "signUp":
-          console.log("signed up");
           break;
         case "signOut":
-          console.log("signed out");
           setState((prevState) => ({ ...prevState, user: null }));
           break;
         default:
