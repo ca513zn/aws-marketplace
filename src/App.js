@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter as Router, Route } from "react-router-dom";
 import { Authenticator, AmplifyTheme } from "aws-amplify-react";
-import { Auth, Hub, Logger } from "aws-amplify";
+import { API, graphqlOperation, Auth, Hub, Logger } from "aws-amplify";
 import HomePage from "./pages/HomePage";
 import ProfilePage from "./pages/ProfilePage";
 import Navbar from "./components/Navbar";
 import MarketPage from "./pages/MarketPage";
 import "./App.css";
-
+import { getUser } from "./graphql/queries";
+import { registerUser } from "./graphql/mutations";
 export const UserContext = React.createContext();
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
         case "signIn":
           console.log("signed in");
           getUserData();
+          registerNewUser(capsule.payload.data);
           break;
         case "signUp":
           console.log("signed up");
@@ -42,6 +44,31 @@ const App = () => {
       }
     };
   }, []);
+
+  const registerNewUser = async (signInData) => {
+    const getUserInput = {
+      id: signInData.signInUserSession.idToken.payload.sub,
+    };
+    const { data } = await API.graphql(graphqlOperation(getUser, getUserInput));
+    if (!data.getUser) {
+      try {
+        const registerUserInput = {
+          ...getUserInput,
+          username: signInData.username,
+          email: signInData.signInUserSession.idToken.payload.email,
+          registered: true,
+        };
+        const newUser = await API.graphql(
+          graphqlOperation(registerUser, {
+           input: registerUserInput,
+          })
+        );
+        console.log({ newUser });
+      } catch (error) {
+        console.error("error:", error);
+      }
+    }
+  };
 
   const handleSignOut = async () => {
     try {
