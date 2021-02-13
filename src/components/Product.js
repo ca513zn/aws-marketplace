@@ -49,15 +49,15 @@ const Product = ({ product }) => {
         shipped: state.shipped,
         price: convertDollarsToCents(state.price),
       };
-      const result = await API.graphql(
+      await API.graphql(
         graphqlOperation(updateProduct, {
           input,
         })
       );
-      console.log(result);
       Notification({
         title: "Success!",
         message: "Product successfully updated!",
+        type: "success",
       });
     } catch (error) {
       console.log(error);
@@ -65,9 +65,8 @@ const Product = ({ product }) => {
   };
   const handleDeleteProduct = async (id) => {
     try {
-      deleteProductDialog.handleClose();
       const input = { id };
-      console.log(id);
+      deleteProductDialog.handleClose();
       await API.graphql(graphqlOperation(deleteProduct, { input }));
       Notification({
         title: "Success!",

@@ -6,7 +6,11 @@ import { Link } from "react-router-dom";
 import { ChevronLeft } from "@material-ui/icons";
 import NewProduct from "../components/NewProduct";
 import Product from "../components/Product";
-
+import {
+  onCreateProduct,
+  onDeleteProduct,
+  onUpdateProduct,
+} from "../graphql/subscriptions";
 const getMarket = `
   query GetMarket($id: ID!) {
     getMarket(id: $id) {
@@ -41,9 +45,78 @@ const MarketPage = ({ marketId, user }) => {
     isLoading: true,
     isOwner: false,
   });
+
   useEffect(() => {
     handleGetMarket();
+    const createProductListener = API.graphql(
+      graphqlOperation(onCreateProduct, { owner: user.attributes.sub })
+    ).subscribe({
+      next: (productData) => {
+        const createdProduct = productData.value.data.onCreateProduct;
+        setState((prevState) => {
+          console.log(prevState)
+          const prevProducts = prevState.market.products.items.filter(
+            (item) => item.id !== createdProduct.id
+          );
+          const updatedProducts = [createdProduct, ...prevProducts];
+          const newMarket = { ...prevState.market };
+          newMarket.products.items = updatedProducts;
+          return {
+            ...prevState,
+            market: { ...prevState.market, market: newMarket },
+          };
+        });
+      },
+    });
+    const updateProductListener = API.graphql(
+      graphqlOperation(onUpdateProduct, { owner: user.attributes.sub })
+    ).subscribe({
+      next: (productData) => {
+        const updatedProduct = productData.value.data.onUpdateProduct;
+        setState((prevState) => {
+          const index = prevState.market.products.items.findIndex(
+            (item) => item.id === updatedProduct.id
+          );
+          const newItems = {
+            items: [
+              ...prevState.market.products.items.slice(0, index),
+              updatedProduct,
+              ...prevState.market.products.items.slice(index + 1),
+            ],
+          };
+
+          return {
+            ...prevState,
+            market: { ...prevState.market, products: newItems },
+          };
+        });
+      },
+    });
+    const deleteProductListener = API.graphql(
+      graphqlOperation(onDeleteProduct, { owner: user.attributes.sub })
+    ).subscribe({
+      next: (productData) => {
+        const deletedProduct = productData.value.data.onDeleteProduct;
+        setState((prevState) => {
+          const updatedProducts = prevState.market.products.items.filter(
+            (item) => item.id !== deletedProduct.id
+          );
+          const newMarket = { ...prevState.market };
+          newMarket.products.items = updatedProducts;
+          return {
+            ...prevState,
+            market: newMarket,
+          };
+        });
+      },
+    });
+    return () => {
+      createProductListener.unsubscribe();
+      deleteProductListener.unsubscribe();
+      updateProductListener.unsubscribe();
+    };
   }, []);
+
   const handleGetMarket = async () => {
     const input = { id: marketId };
     const result = await API.graphql(graphqlOperation(getMarket, input));
@@ -54,6 +127,7 @@ const MarketPage = ({ marketId, user }) => {
       isOwner: user.username === result.data.getMarket.owner,
     }));
   };
+
   return state.isLoading ? (
     <Loading fullscreen />
   ) : (
