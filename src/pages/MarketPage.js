@@ -1,12 +1,39 @@
 import React, { useEffect, useState } from "react";
 import { API, graphqlOperation } from "aws-amplify";
-import { getMarket } from "../graphql/queries";
 import { Icon, Loading, Tabs } from "element-react";
 import { Link } from "react-router-dom";
 
 import { ChevronLeft } from "@material-ui/icons";
 import NewProduct from "../components/NewProduct";
 import Product from "../components/Product";
+
+const getMarket = `
+  query GetMarket($id: ID!) {
+    getMarket(id: $id) {
+      id
+      name
+      products {
+        items {
+          id
+          description
+          price
+          shipped
+          owner
+          createdAt
+          updatedAt
+          file {
+            key
+          }
+        }
+        nextToken
+      }
+      tags
+      owner
+      createdAt
+      updatedAt
+    }
+  }
+`;
 
 const MarketPage = ({ marketId, user }) => {
   const [state, setState] = useState({

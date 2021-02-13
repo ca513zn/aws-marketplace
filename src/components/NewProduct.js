@@ -14,6 +14,7 @@ const initialState = {
   imageURL: "",
   image: "",
   isUploading: false,
+  percent: 0,
 };
 
 const NewProduct = ({ marketId }) => {
@@ -35,6 +36,13 @@ const NewProduct = ({ marketId }) => {
       }`;
       const uploadedFile = await Storage.put(filename, state.image.file, {
         contentType: state.image.type,
+        progressCallback: (progress) => {
+          const percent = Math.round((progress.loaded / progress.total) * 100);
+          setState((prevState) => ({
+            ...prevState,
+            percent,
+          }));
+        },
       });
       const file = {
         key: uploadedFile.key,
@@ -110,6 +118,13 @@ const NewProduct = ({ marketId }) => {
               className="image-preview"
               src={state.imageURL}
               alt="Product Preview"
+            />
+          )}
+          {state.percent > 0 && (
+            <Progress
+              type="circle"
+              className="progress"
+              percentage={state.percent}
             />
           )}
           <PhotoPicker
