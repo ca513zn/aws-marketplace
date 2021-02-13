@@ -58,12 +58,11 @@ const App = () => {
           email: signInData.signInUserSession.idToken.payload.email,
           registered: true,
         };
-        const newUser = await API.graphql(
+        await API.graphql(
           graphqlOperation(registerUser, {
            input: registerUserInput,
           })
         );
-        console.log({ newUser });
       } catch (error) {
         console.error("error:", error);
       }
