@@ -39,7 +39,6 @@ const HomePage = () => {
           },
         })
       );
-      console.log(result);
       setState((prevState) => ({
         ...prevState,
         isSearching: false,

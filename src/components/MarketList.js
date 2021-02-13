@@ -1,13 +1,43 @@
 import React from "react";
 import { graphqlOperation } from "aws-amplify";
 import { Connect } from "aws-amplify-react";
-import { listMarkets } from "../graphql/queries";
 import { onCreateMarket } from "../graphql/subscriptions";
 import { Loading, Icon, Tag } from "element-react";
 import Error from "./Error";
 import { Link } from "react-router-dom";
 import { ShoppingCart, Store } from "@material-ui/icons";
 import { Card, CardHeader, Badge, Box } from "@material-ui/core";
+const listMarkets = `
+  query ListMarkets(
+    $filter: ModelMarketFilterInput
+    $limit: Int
+    $nextToken: String
+  ) {
+    listMarkets(filter: $filter, limit: $limit, nextToken: $nextToken) {
+      items {
+        id
+        name
+        products {
+          items {
+          id
+          description
+          price
+          shipped
+          owner
+          createdAt
+          updatedAt
+        }
+          nextToken
+        }
+        tags
+        owner
+        createdAt
+        updatedAt
+      }
+      nextToken
+    }
+  }
+`;
 const MarketList = ({ searchResults }) => {
   const onNewMarket = (prevQuery, newdata) => {
     let udpatedQuery = { ...prevQuery };

@@ -100,7 +100,7 @@ const Product = ({ product }) => {
                   <span className="mx-1">
                     ${converCentsToDollars(product.price)}
                   </span>
-                  {!isOwner && <PayButton />}
+                  {!isOwner && <PayButton product={product} user={user} />}
                 </div>
               </div>
             </Card>

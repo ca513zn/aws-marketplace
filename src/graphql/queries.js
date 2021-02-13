@@ -37,13 +37,14 @@ export const listMarkets = /* GraphQL */ `
         name
         products {
           items {
-            id
-            description
-            price
-            shipped
-            owner
-            createdAt
-          }
+          id
+          description
+          price
+          shipped
+          owner
+          createdAt
+          updatedAt
+        }
           nextToken
         }
         tags
@@ -154,14 +155,6 @@ export const searchMarkets = /* GraphQL */ `
         id
         name
         products {
-          items {
-            id
-            description
-            price
-            shipped
-            owner
-            createdAt
-          }
           nextToken
         }
         tags
