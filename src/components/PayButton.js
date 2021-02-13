@@ -13,6 +13,11 @@ const PayButton = ({ product, user }) => {
       const result = await API.post("orderlambda", "/charge", {
         body: {
           token,
+          charge: {
+            currency: stripeConfig.currency,
+            amount: product.price,
+            description: product.description,
+          }
         },
       });
       console.log(result);
