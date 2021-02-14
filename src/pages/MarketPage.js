@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { API, graphqlOperation } from "aws-amplify";
 import { Icon, Loading, Tabs } from "element-react";
 import { Link } from "react-router-dom";
-
+import { formatProductDate } from "../utils";
 import { ChevronLeft } from "@material-ui/icons";
 import NewProduct from "../components/NewProduct";
 import Product from "../components/Product";
@@ -142,7 +142,7 @@ const MarketPage = ({ marketId, user, userAttributes }) => {
       <div className="items-center pt-2">
         <span style={{ color: "var(--lightSquidInk)", paddingBottom: "1em" }}>
           <Icon name="date" className="icon" />
-          {state.market.createdAt}
+          {formatProductDate(state.market.createdAt)}
         </span>
       </div>
       {/* New Product */}

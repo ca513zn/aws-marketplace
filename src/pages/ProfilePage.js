@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Auth, API, graphqlOperation } from "aws-amplify";
 // prettier-ignore
 import { Table, Button, Notification, MessageBox, Message, Tabs, Icon, Form, Dialog, Input, Card, Tag } from 'element-react'
-import { converCentsToDollars } from "../utils";
+import { converCentsToDollars, formatOrderDate } from "../utils";
 import useDialog from "../hooks/useDialog";
 const getUser = `
 query GetUser($id: ID!) {
@@ -76,7 +76,11 @@ const ProfilePage = ({ user, userAttributes }) => {
               );
             case "Delete Profile":
               return (
-                <Button type="danger" size="small">
+                <Button
+                  type="danger"
+                  size="small"
+                  onClick={handleDeleteProfile}
+                >
                   Delete
                 </Button>
               );
@@ -155,6 +159,31 @@ const ProfilePage = ({ user, userAttributes }) => {
     }
   };
 
+  const handleDeleteProfile = () => {
+    MessageBox.confirm(
+      "This will permanently delete your account. Continue?",
+      "Attention!",
+      {
+        confirmButtonText: "Delete",
+        cancelButtonText: "Cancel",
+        type: "warning",
+      }
+    )
+      .then(async () => {
+        try {
+          await user.deleteUser();
+        } catch (error) {
+          console.error(error);
+        }
+      })
+      .catch(() => {
+        Message({
+          type: "info",
+          message: "Delete canceled",
+        });
+      });
+  };
+
   return (
     userAttributes && (
       <>
@@ -221,7 +250,7 @@ const ProfilePage = ({ user, userAttributes }) => {
                         Price: ${converCentsToDollars(order.product.price)}{" "}
                         (USD)
                       </p>
-                      <p>Purchased on: {order.createdAt}</p>
+                      <p>Purchased on: {formatOrderDate(order.createdAt)}</p>
                       {order.shippingAddress && (
                         <>
                           Shipping Address:
