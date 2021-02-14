@@ -18,6 +18,7 @@ import { UserContext } from "../App";
 import PayButton from "./PayButton";
 import useDialog from "../hooks/useDialog";
 import { deleteProduct, updateProduct } from "../graphql/mutations";
+import { Link } from "react-router-dom";
 const Product = ({ product }) => {
   const [state, setState] = useState({
     description: "",
@@ -80,7 +81,8 @@ const Product = ({ product }) => {
   return (
     <UserContext.Consumer>
       {({ userAttributes }) => {
-        const isOwner = userAttributes && userAttributes.sub == product.owner;
+        const isOwner = userAttributes && userAttributes.sub === product.owner;
+        const isEmailVerified = userAttributes && userAttributes.email_verified;
         return (
           <div className="card-container">
             <Card bodyStyle={{ padding: 0, minWidth: "200px" }}>
@@ -100,7 +102,18 @@ const Product = ({ product }) => {
                   <span className="mx-1">
                     ${converCentsToDollars(product.price)}
                   </span>
-                  {!isOwner && <PayButton product={product} userAttributes={userAttributes} />}
+                  {isEmailVerified ? (
+                    !isOwner && (
+                      <PayButton
+                        product={product}
+                        userAttributes={userAttributes}
+                      />
+                    )
+                  ) : (
+                    <Link to="/profile" className="link">
+                      Verify Email
+                    </Link>
+                  )}
                 </div>
               </div>
             </Card>

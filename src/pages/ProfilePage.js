@@ -125,8 +125,8 @@ const ProfilePage = ({ user, userAttributes }) => {
   };
 
   const sendVerificationCode = async (attr) => {
-    await Auth.verifyCurrentUserAttribute(attr);
     verificationForm.handleOpen();
+    await Auth.verifyCurrentUserAttribute(attr);
     Message({
       type: "info",
       customClass: "message",

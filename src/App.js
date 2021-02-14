@@ -119,6 +119,7 @@ const App = () => {
               component={({ match }) => (
                 <MarketPage
                   user={state.user}
+                  userAttributes={state.userAttributes}
                   marketId={match.params.marketId}
                 />
               )}
