@@ -90,7 +90,7 @@ const App = () => {
 
           <div className="app-container">
             <Route exact path="/" component={HomePage} />
-            <Route exact path="/profile" component={ProfilePage} />
+            <Route exact path="/profile" component={() => <ProfilePage user={state.user} />} />
             <Route
               exact
               path="/markets/:marketId"
