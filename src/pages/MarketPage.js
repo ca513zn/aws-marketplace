@@ -16,7 +16,7 @@ const getMarket = `
     getMarket(id: $id) {
       id
       name
-      products {
+      products (sortDirection: DESC,limit: 999) {
         items {
           id
           description

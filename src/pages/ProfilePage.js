@@ -10,7 +10,7 @@ query GetUser($id: ID!) {
     username
     email
     registered
-    orders {
+    orders (sortDirection: DESC, limit: 10) {
       items {
         id
         createdAt
@@ -37,18 +37,58 @@ query GetUser($id: ID!) {
   }
 }
 `;
-const ProfilePage = ({ user }) => {
-  const [state, setState] = useState({ orders: [] });
+const ProfilePage = ({ user, userAttributes }) => {
+  const [state, setState] = useState({
+    orders: [],
+    columns: [
+      { prop: "name", width: "150" },
+      { prop: "value", width: "330" },
+      {
+        prop: "tag",
+        width: "150",
+        render: (row) => {
+          if (row.name === "Email") {
+            const emailVerified = userAttributes.email_verified;
+            return emailVerified ? (
+              <Tag type="success">Verified</Tag>
+            ) : (
+              <Tag type="danger">Unverified</Tag>
+            );
+          }
+        },
+      },
+      {
+        prop: "operations",
+        render: (row) => {
+          switch (row.name) {
+            case "Email":
+              return (
+                <Button type="info" size="small">
+                  Edit
+                </Button>
+              );
+            case "Delete Profile":
+              return (
+                <Button type="danger" size="small">
+                  Delete
+                </Button>
+              );
+            default:
+              break;
+          }
+        },
+      },
+    ],
+  });
   useEffect(() => {
-    if (user) {
-      getUserOrders(user.attributes.sub);
+    if (userAttributes) {
+      getUserOrders(userAttributes.sub);
     }
   }, []);
   const getUserOrders = async (userId) => {
     const input = { id: userId };
     try {
       const result = await API.graphql(graphqlOperation(getUser, input));
-      console.log(result);
       setState((prevState) => ({
         ...prevState,
         orders: result.data.getUser.orders.items,
@@ -57,7 +97,7 @@ const ProfilePage = ({ user }) => {
       console.log(error);
     }
   };
-  return (
+  return userAttributes && (
     <>
       <Tabs activeName="1" className="profile-tabs">
         <Tabs.Pane
@@ -70,6 +110,35 @@ const ProfilePage = ({ user }) => {
           }
         >
           <h2 className="header">Profile Summary</h2>
+          <Table
+            columns={state.columns}
+            data={[
+              {
+                name: "Your Id",
+                value: userAttributes.sub,
+              },
+              {
+                name: "Username",
+                value: user.username,
+              },
+              {
+                name: "Email",
+                value: userAttributes.email,
+              },
+              {
+                name: "Phone Number",
+                value: userAttributes.phone_number,
+              },
+              {
+                name: "Delete Profile",
+                value: "Sorry to see you go...",
+              },
+            ]}
+            showHeader={false}
+            rowClassName={(row) =>
+              row.name === "Delete Profile" && "delete-profile"
+            }
+          />
         </Tabs.Pane>
         <Tabs.Pane
           name="2"

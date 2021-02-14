@@ -16,13 +16,24 @@ export const history = createBrowserHistory();
 export const UserContext = React.createContext();
 
 const App = () => {
-  const [state, setState] = useState({ user: null });
+  const [state, setState] = useState({ user: null, userAttributes: null });
   const authWatcher = new Logger("authWatcher");
   const getUserData = async () => {
     const user = await Auth.currentAuthenticatedUser();
     user
-      ? setState((prevState) => ({ ...prevState, user }))
+      ? getUserAttributes(user)
       : setState((prevState) => ({ ...prevState, user: null }));
+  };
+
+  const getUserAttributes = async (authUserData) => {
+    const attributesArr = await Auth.userAttributes(authUserData);
+    const attributesObj = await Auth.attributesToObject(attributesArr);
+    console.log("obj:", attributesObj);
+    setState((prevState) => ({
+      ...prevState,
+      userAttributes: attributesObj,
+      user: authUserData,
+    }));
   };
 
   useEffect(() => {
@@ -81,7 +92,9 @@ const App = () => {
   return !state.user ? (
     <Authenticator theme={theme} />
   ) : (
-    <UserContext.Provider value={{ user: state.user }}>
+    <UserContext.Provider
+      value={{ user: state.user, userAttributes: state.userAttributes }}
+    >
       <Router history={history}>
         <>
           {/* Navigation */}
@@ -90,7 +103,16 @@ const App = () => {
 
           <div className="app-container">
             <Route exact path="/" component={HomePage} />
-            <Route exact path="/profile" component={() => <ProfilePage user={state.user} />} />
+            <Route
+              exact
+              path="/profile"
+              component={() => (
+                <ProfilePage
+                  user={state.user}
+                  userAttributes={state.userAttributes}
+                />
+              )}
+            />
             <Route
               exact
               path="/markets/:marketId"
