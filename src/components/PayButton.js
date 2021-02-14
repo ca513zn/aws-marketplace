@@ -2,7 +2,9 @@ import { API, graphqlOperation } from "aws-amplify";
 import React from "react";
 import StripeCheckout from "react-stripe-checkout";
 import { getUser } from "../graphql/queries";
-// import { Notification, Message } from "element-react";
+import { createOrder } from "../graphql/mutations";
+import { Notification, Message } from "element-react";
+import { history } from "../App";
 const stripeConfig = {
   currency: "USD",
   publishableAPIKey:
@@ -18,6 +20,13 @@ const PayButton = ({ product, user }) => {
       console.log(error);
     }
   };
+  const createShippingAddress = (source) => ({
+    city: source.address_city,
+    country: source.address_country,
+    address_line1: source.address_line1,
+    address_state: source.address_state,
+    address_zip: source.address_zip,
+  });
   const handleCharge = async (token) => {
     try {
       const ownerEmail = await getOwnerEmail(product.owner);
@@ -36,8 +45,40 @@ const PayButton = ({ product, user }) => {
           },
         },
       });
+      if (result.charge.status === "succeeded") {
+        let shippingAddress = null;
+        if (product.shipped) {
+          shippingAddress = createShippingAddress(result.charge.source);
+        }
+        const input = {
+          orderUserId: user.attributes.sub,
+          orderProductId: product.id,
+          shippingAddress,
+        };
+        const order = await API.graphql(graphqlOperation(createOrder, { input }));
+        console.log({ order });
+        Notification({
+          title: "Success!",
+          message: `${result.message}`,
+          type: "success",
+          duration: 3000,
+        });
+        setTimeout(() => {
+          history.push("/");
+          Message({
+            type: "info",
+            message: "Check your verified email for order details.",
+            duration: 5000,
+            showClose: true,
+          });
+        }, 3000);
+      }
     } catch (error) {
       console.log(error);
+      Notification.error({
+        title: "Error",
+        message: `${error.message || "Error processing order."}`,
+      });
     }
   };
   return (

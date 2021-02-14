@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route } from "react-router-dom";
+import { Router, Route } from "react-router-dom";
 import { Authenticator, AmplifyTheme } from "aws-amplify-react";
 import { API, graphqlOperation, Auth, Hub, Logger } from "aws-amplify";
 import HomePage from "./pages/HomePage";
@@ -8,7 +8,11 @@ import Navbar from "./components/Navbar";
 import MarketPage from "./pages/MarketPage";
 import "./App.css";
 import { getUser } from "./graphql/queries";
+import createBrowserHistory from "history/createBrowserHistory";
 import { registerUser } from "./graphql/mutations";
+
+export const history = createBrowserHistory();
+
 export const UserContext = React.createContext();
 
 const App = () => {
@@ -57,7 +61,7 @@ const App = () => {
         };
         await API.graphql(
           graphqlOperation(registerUser, {
-           input: registerUserInput,
+            input: registerUserInput,
           })
         );
       } catch (error) {
@@ -78,7 +82,7 @@ const App = () => {
     <Authenticator theme={theme} />
   ) : (
     <UserContext.Provider value={{ user: state.user }}>
-      <Router>
+      <Router history={history}>
         <>
           {/* Navigation */}
           <Navbar user={state.user} handleSignOut={handleSignOut} />
